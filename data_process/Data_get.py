@@ -1,5 +1,7 @@
+import time
 from collections import Counter
 
+from data_process import Data_util
 from data_storage.Data_select import Data_select
 
 
@@ -99,12 +101,15 @@ class Data_get:
         shop = goods_data['shop'].tolist()[0]
         commit = goods_data['commit'].tolist()[0]
         detail_url = goods_data['detail_url'].tolist()[0]
+        sentimentScore = goods_data['sentimentScore'].tolist()[0]
+        commit_count = goods_data['commit_count'].tolist()[0]
+        count5 = goods_data['count5'].tolist()[0]
 
         pimg_list = ds.selectSpecImg(keyId, pid)
 
         # spec_list = ds.selectSpec(keyId, pid)
 
-        data_list = [title, brand3, brand4, brand5, price, shop, commit, detail_url, pimg_list]
+        data_list = [title, brand3, brand4, brand5, price, shop, commit, detail_url, pimg_list,  sentimentScore, commit_count, count5]
         return data_list
 
     def get_goods_page_spec(self,keyId, pid):
@@ -112,9 +117,77 @@ class Data_get:
         spec_list = ds.selectSpec(keyId, pid)
         return spec_list
 
+    def get_goods_page_chart(self,keyId, pid):
+        wcimg = Data_util.generateWordCloud(keyId, pid)
+
+        ds = Data_select()
+        # 获取goods表信息，为dataFrame格式
+        goods_data = ds.selectGoods(keyId, '', '', '', '', '', '',pid)
+
+        # 去重
+        goods_data = goods_data.drop_duplicates()
+        # 控制默认设为0
+        goods_data = goods_data.fillna(0)
+
+        if goods_data['commit_count'].tolist()[0] != 0:
+            count1 = round((goods_data['count1'].tolist()[0] / goods_data['commit_count'].tolist()[0] * 100), 2)
+            count2 = round((goods_data['count2'].tolist()[0] / goods_data['commit_count'].tolist()[0] * 100), 2)
+            count3 = round((goods_data['count3'].tolist()[0] / goods_data['commit_count'].tolist()[0] * 100), 2)
+            count4 = round((goods_data['count4'].tolist()[0] / goods_data['commit_count'].tolist()[0] * 100), 2)
+            count5 = round((goods_data['count5'].tolist()[0] / goods_data['commit_count'].tolist()[0] * 100), 2)
+        else:
+            count1 = 0
+            count2 = 0
+            count3 = 0
+            count4 = 0
+            count5 = 0
+        sentiment1 = round((goods_data['sentiment1'].tolist()[0] * 100), 2)
+        sentiment2 = round((goods_data['sentiment2'].tolist()[0] * 100), 2)
+        sentiment3 = round((goods_data['sentiment3'].tolist()[0] * 100), 2)
+        sentiment4 = round((goods_data['sentiment4'].tolist()[0] * 100), 2)
+        sentiment5 = round((goods_data['sentiment5'].tolist()[0] * 100), 2)
+
+        countList = [count1, count2, count3, count4, count5]
+        sentimentList = [sentiment1, sentiment2, sentiment3, sentiment4, sentiment5]
+        data_list = [wcimg, countList, sentimentList]
+
+        return data_list
+
+    def get_goods_page_commit(self, keyId, pid, score, page):
+
+        ds = Data_select()
+
+        commitList = ds.selectCommit(keyId, pid, score, page)
+
+        dataList = []
+        for commit in commitList:
+            cid = commit[5]
+            commitImgList = ds.selectCommitImgByCid(keyId, cid)
+            commit[4] = round((commit[4] * 100), 2)
+            data = [commit, commitImgList]
+            dataList.append(data)
+
+        return dataList
+
+    def get_home_data(self):
+        ds = Data_select()
+
+        keywordCount = ds.selectKeywordCount()
+        goodsCount = ds.selectGoodsCount('')
+        commitCount = ds.selectCommitCount('')
+        commitImg = ds.selectCommitImgCount('')
+
+        data = [keywordCount, goodsCount, commitCount, commitImg]
+
+        return data
+
+
+
 if __name__ == '__main__':
     dg = Data_get()
 
-    a = dg.get_goods_page_spec(23, "100068991305")
+    # a = dg.get_goods_page_commit(1, "10074859458710", '', 1)
+
+    a = dg.get_home_data()
 
     print(a)

@@ -1,7 +1,10 @@
+from data_storage.Data_delete import Data_delete
 from data_storage.Data_insert import Data_insert
 from data_storage.Data_select import Data_select
+from data_storage.Data_update import Data_update
 from spider import SpiderGoodsBrand, SpiderBSI, SpiderCommit, SpiderQA
 from data_process.Data_clean import Data_clean
+
 
 class Spider_get:
     goods_keyword = '笔记本电脑'
@@ -15,35 +18,41 @@ class Spider_get:
         self.commit_page = commit_page
         self.qa_page = qa_page
 
-
     def getAll(self):
-        SpiderGoodsBrand.getGoodsList(self.goods_keyword, self.goods_page)
-
-        SpiderBSI.getBSI()
-
-        SpiderCommit.getCommit(self.commit_page)
-
-        SpiderQA.getQa(self.qa_page)
-
         ds = Data_select()
-        di = Data_insert()
+        du = Data_update()
 
-        a = ds.selectKeyword(self.goods_keyword)
+        print('-----'+self.goods_keyword)
+        a = ds.selectKeyword(self.goods_keyword, 2)
+
         ds.close()
-
-        if a:
+        # 判断a的结果是否存在
+        if a != None:
             print('关键词数据已存在')
-            print(a[0])
-            dc = Data_clean()
-            dc.put_all(a[0])
+            kid = a[0]
+            print('----'+str(kid))
+            if du.updataKeywordStus(kid, 1):
+                du.commit()
+                SpiderGoodsBrand.getGoodsList(self.goods_keyword, self.goods_page)
+                SpiderBSI.getBSI()
+                SpiderCommit.getCommit(self.commit_page)
+                SpiderQA.getQa(self.qa_page)
+                dd = Data_delete()
+                dd.deleteAll(kid)
         else:
             print('关键词数据不存在')
+            di = Data_insert()
             di.insertKeyword(self.goods_keyword)
             di.commit()
             ds = Data_select()
-            kd = ds.selectKeyword(self.goods_keyword)
+            a = ds.selectKeyword(self.goods_keyword, 2)
+            kid = a[0]
+            SpiderGoodsBrand.getGoodsList(self.goods_keyword, self.goods_page)
+            SpiderBSI.getBSI()
+            SpiderCommit.getCommit(self.commit_page)
+            SpiderQA.getQa(self.qa_page)
 
-            print(kd[0])
-            dc = Data_clean()
-            dc.put_all(kd[0])
-
+        dc = Data_clean()
+        dc.put_all(kid, self.goods_page, self.commit_page)
+        du.updataKeywordStus(kid, 0)
+        du.commit()

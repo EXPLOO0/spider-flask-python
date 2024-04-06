@@ -34,6 +34,8 @@ def getCommit(cp):
     t4 = threading.Thread(target=test_xc, args=(3 * p, len(df)))
     t4.start()
 
+
+
     # 线程全部执行完毕
     t1.join()
     t2.join()

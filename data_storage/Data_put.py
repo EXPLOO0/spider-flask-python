@@ -5,7 +5,7 @@ from data_storage.Data_select import Data_select
 
 def putGoods(keyword):
     ds = Data_select()
-    keyId = ds.selectKeyword(keyword=keyword)
+    keyId = ds.selectKeyword(keyword=keyword, value=0)
 
     df = Data_clean.goods_process()
     # df为处理后的csv文件数据

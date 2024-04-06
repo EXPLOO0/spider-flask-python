@@ -22,23 +22,20 @@ def getQa(qap):
 
 
 
-    p = len(df) // 4
+    p = len(df) // 3
     t1 = threading.Thread(target=test_xc, args=(0, p))
     t1.start()
 
     t2 = threading.Thread(target=test_xc, args=(p, 2 * p))
     t2.start()
 
-    t3 = threading.Thread(target=test_xc, args=(2 * p, 3 * p))
+    t3 = threading.Thread(target=test_xc, args=(2 * p, len(df)))
     t3.start()
 
-    t4 = threading.Thread(target=test_xc, args=(3 * p, len(df)))
-    t4.start()
 
     # 线程全部执行完毕
     t1.join()
     t2.join()
     t3.join()
-    t4.join()
 
     return 0

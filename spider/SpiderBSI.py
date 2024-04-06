@@ -188,7 +188,7 @@ def getBSI():
                 continue
 
         print('-----------第'+str(i)+'个-----------')
-        if i % 500 == 0:
+        if i % 500 == 0 and i != 0 :
             page.quit()
             page = ChromiumPage()
     page.quit()

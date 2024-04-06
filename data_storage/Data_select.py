@@ -14,20 +14,34 @@ class Data_select:
 
         self.engine = create_engine('mysql+pymysql://root:root@localhost:3306/spider_jd')
 
-    def selectKeyword(self, keyword):
+    def selectKeyword(self, keyword, value):
+        print(keyword)
         # 执行SQL查询语句
         if keyword == 'none':
-            sql = "SELECT keyId, keyword FROM keyword_t "
+            sql = "SELECT keyId, keyword, goodsCount, price, createDate FROM keyword_t where stus = 0 "
             # 获取全部结果
             self.cursor.execute(sql)
             # 返回查询结果
             data = self.cursor.fetchall()
         else:
-            sql = "SELECT keyId, keyword FROM keyword_t WHERE keyword = %s "
-            # 获取结果
-            self.cursor.execute(sql, keyword)
-            # 返回查询结果
-            data = self.cursor.fetchone()
+            if value==1 :
+                sql = "SELECT keyId, keyword, goodsCount, price, createDate FROM keyword_t WHERE keyword like '"+str(keyword)+"' and stus = 1 "
+                # 获取结果
+                self.cursor.execute(sql )
+                # 返回查询结果
+                data = self.cursor.fetchone()
+            elif value==0:
+                sql = "SELECT keyId, keyword, goodsCount, price, createDate FROM keyword_t WHERE keyword like '"+str(keyword)+"' and stus = 0 "
+                # 获取结果
+                self.cursor.execute(sql )
+                # 返回查询结果
+                data = self.cursor.fetchone()
+            else:
+                sql = "SELECT keyId, keyword, goodsCount, price, createDate FROM keyword_t WHERE keyword like '"+str(keyword)+"' "
+                # 获取结果
+                self.cursor.execute(sql )
+                # 返回查询结果
+                data = self.cursor.fetchone()
         return data
 
     def selectGoods(self, keyId, brand1, brand2, brand3, brand4, brand5, shop, pid):
@@ -41,7 +55,7 @@ class Data_select:
         # return df
 
         # 判断brand1, brand2, brand3是否为空,不为空时增加判断条件
-        sql1 = ' '
+        sql1 = " and brand5 != 'default_value' "
         if brand1 != '' and brand1:
             sql1 = sql1 + ' and brand1 = "' + brand1 + '" '
         if brand2 != '' and brand2:
@@ -56,13 +70,15 @@ class Data_select:
             sql1 = sql1 + ' and shop = "' + shop + '" '
         if pid != '' and pid:
             sql1 = sql1 + ' and pid = "' + pid + '" '
+        if keyId != '' and keyId:
+            sql1 = sql1 + ' and keyId = "' + str(keyId) + '" '
 
         # 使用SQLAlchemy创建数据库连接对象
         # engine = create_engine('mysql+pymysql://root:root@localhost:3306/spider_jd')
         # pandas从数据库获取数据
-        sql = 'select pid, brand1, brand2, brand3, brand4, brand5, title, price, commit, shop, p_img, detail_url from goods_t where keyId = %s ' + sql1
+        sql = 'select pid, brand1, brand2, brand3, brand4, brand5, title, price, commit, shop, p_img, detail_url, sentimentScore, sentiment1, sentiment2, sentiment3, sentiment4, sentiment5, commit_count, count1, count2, count3, count4, count5 from goods_t where 1 = 1 ' + sql1
         # 获取全部结果
-        df = pd.read_sql(sql, self.engine, params=(keyId,))
+        df = pd.read_sql(sql, self.engine)
         return df
 
     def selectBrand1(self, keyId):
@@ -150,16 +166,6 @@ class Data_select:
 
         return pimgList
 
-    def selectCommitCount(self, keyId, pid, score):
-        sql = 'SELECT count(*) FROM commit_t WHERE kid = ' + str(keyId) + ' and pid = "' + str(pid) + '" '
-        if score != '' and score:
-            sql = sql + ' and score = ' + str(score) + ' '
-        print(sql)
-        # 获取全部结果
-        df = pd.read_sql(sql, self.engine)
-        # 返回第一个结果
-        return df.iloc[0, 0]
-
     def selectSpec(self, keyId, pid):
         sql = 'select CONCAT(param3, "：", param4) as a from spec_t where kid =  ' + str(keyId) + ' and pid = "' + str(pid) +'" ORDER BY CASE param3 WHEN "包装清单" THEN 1 ELSE 2 END'
 
@@ -167,13 +173,92 @@ class Data_select:
         df = pd.read_sql(sql, self.engine)
         # 去重
         df = df.drop_duplicates()
-        # df['a']中包含  ’包装信息‘ 的字符 提到第一个
-        df['a'] = df['a'].str.replace('包装信息', '', regex=False).str.replace('包装信息', '包装信息',
-                                                                  regex=False).str.replace('包装信息', '',
-                                                                                  regex=False)
 
         return df['a'].tolist()
 
+    def selectCommit(self,keyId, pid, score, page):
+        sql = 'select productColor, productSize, score, content, sentimentScore, id from commit_t a right join goods_commit_t b on a.kid = b.kid and a.id = b.cid where a.kid =  ' + str(keyId) + ' and b.pid = "' + str(pid) +'" '
+
+        if score != '' and score:
+            sql = sql + ' and score = ' + str(score)
+
+        if page != '' and page:
+            sql = sql + ' limit ' + str((int(page)-1)*10) + ' , ' + str(10)
+        # 获取全部结果
+        df = pd.read_sql(sql, self.engine)
+        # 去重
+        df = df.drop_duplicates()
+
+        # 将df转为list
+        commitList = df.values.tolist()
+        return commitList
+
+    def selectCommitImgByCid(self, keyId, cid):
+        sql = 'select img from commit_img_t where kid = ' + str(keyId) + ' and qid =  "' + str(cid) + '" '
+
+        # 获取全部结果
+        df = pd.read_sql(sql, self.engine)
+        # 去重
+        df = df.drop_duplicates()
+
+        commitImgList = []
+        # 循环调用正则
+        for index, row in df.iterrows():
+            input_string = row['img']
+            # 使用正则表达式替换链接中的部分
+            pattern = r'^.*?(?=jfs/t1)'
+            change_string = 'https://img30.360buyimg.com/shaidan/s616x405'
+
+            output_string = re.sub(pattern, change_string, input_string)
+            # 存入列
+            commitImgList.append(output_string)
+
+        return commitImgList
+
+    def selectGoodsCount(self, kid):
+        if kid != '' and kid:
+            sql = "select count(*) from goods_t where keyId = " + str(kid)
+        else:
+            sql = "select count(*) from goods_t"
+        # 获取全部结果
+        self.cursor.execute(sql)
+        # 返回查询结果
+        data = self.cursor.fetchall()
+
+        return data[0][0]
+
+    def selectCommitCount(self, kid):
+        if kid != '' and kid:
+            sql = "select count(*) from commit_t where kid = " + str(kid)
+        else:
+            sql = "select count(*) from commit_t"
+        # 获取全部结果
+        self.cursor.execute(sql)
+        # 返回查询结果
+        data = self.cursor.fetchall()
+
+        return data[0][0]
+
+    def selectCommitImgCount(self, kid):
+        if kid != '' and kid:
+            sql = "select count(*) from commit_img_t where kid = " + str(kid)
+        else:
+            sql = "select count(*) from commit_img_t"
+        # 获取全部结果
+        self.cursor.execute(sql)
+        # 返回查询结果
+        data = self.cursor.fetchall()
+
+        return data[0][0]
+
+    def selectKeywordCount(self):
+        sql = "select count(*) from keyword_t where stus = 0"
+        # 获取全部结果
+        self.cursor.execute(sql)
+        # 返回查询结果
+        data = self.cursor.fetchall()
+
+        return data[0][0]
 
     def close(self):
         # 关闭游标
@@ -183,6 +268,8 @@ class Data_select:
 
 if __name__ == '__main__':
     ds = Data_select()
-    a = ds.selectSpec(17,100061054752)
+    # a = ds.selectGoodsCommitCid(1,10083303825187)
+
+    a = ds.selectKeywordAllCount()
 
     print(a)

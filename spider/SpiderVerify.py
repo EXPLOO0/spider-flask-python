@@ -74,6 +74,8 @@ def verify(page):
                 pass
             elif page.ele('#img-back-div'):
                 print('--------旋转界面---------')
+                time.sleep(1800)
+                return 1
                 verifyRotate(page)
                 pass
             else:

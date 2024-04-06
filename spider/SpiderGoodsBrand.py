@@ -39,6 +39,13 @@ def getGoodsList(keyword, p):
         page.scroll.to_bottom()
         time.sleep(1)
         ulele = page.ele('.gl-warp clearfix')
+        if page.ele('.gl-warp clearfix'):
+            print('------------')
+        else:
+            print('-----进行验证-------')
+            SpiderVerify.click_btn(page)
+            i -= 1
+            continue
         liele = ulele.eles('.gl-item')
         for li in liele:
             div = li.ele('.gl-i-wrap')

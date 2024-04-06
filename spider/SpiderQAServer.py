@@ -1,5 +1,3 @@
-import re
-
 import csv  # 内置模块 无需安装
 import time
 import random
