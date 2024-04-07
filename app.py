@@ -53,7 +53,7 @@ def insertKeyword():
 @app.route('/getKeywordList')
 def getKeywordList():
     ds = Data_select()
-    keywordList = ds.selectKeyword('none', 0)
+    keywordList = ds.selectKeyword('none', 0, '')
     # print(keywordList)
     # 返回json数据
     return {"code": '200', "data": keywordList}
@@ -67,7 +67,7 @@ def getKeywordOne():
         print('true1')
         return {"code": '200', "data": True}
     ds = Data_select()
-    keywordList = ds.selectKeyword(goods_keyword, 0)
+    keywordList = ds.selectKeyword(goods_keyword, 0, '')
     # print('keywordList')
     if keywordList:
         print('true2')
@@ -350,6 +350,40 @@ def getChartPagePriceDrawer3():
     print(res)
 
     return json.dumps(res, ensure_ascii=False, default=default_dump)
+
+@app.route('/getPidByBrand5AndIndex')
+def getPidByBrand5AndIndex():
+    # 接收参数
+    keyId = request.args.get('keyId')
+    brand1 = request.args.get('brand1')
+    brand2 = request.args.get('brand2')
+    brand3 = request.args.get('brand3')
+    commitRangeIndex = request.args.get('commitRangeIndex')
+    priceRangeIndex = request.args.get('priceRangeIndex')
+    brand5 = request.args.get('brand5')
+
+    priceRangeIndex = int(priceRangeIndex)
+    commitRangeIndex = int(commitRangeIndex)
+
+    dg = Data_get()
+    data = dg.getPidByBrand5CommitRangeIndexPriceRangeIndex(keyId, brand1, brand2, brand3, commitRangeIndex, priceRangeIndex, brand5)
+
+    # 返回json数据
+    res = {"code": '200', "data": data}
+
+    def default_dump(obj):
+        """Convert numpy classes to JSON serializable objects."""
+        if isinstance(obj, (np.integer, np.floating, np.bool_)):
+            return obj.item()
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        else:
+            return obj
+
+    print(res)
+
+    return json.dumps(res, ensure_ascii=False, default=default_dump)
+
 
 if __name__ == '__main__':
     app.run()

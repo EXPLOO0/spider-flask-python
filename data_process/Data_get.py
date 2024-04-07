@@ -181,6 +181,33 @@ class Data_get:
 
         return data
 
+    def getPidByBrand5CommitRangeIndexPriceRangeIndex(self, keyId, brand1, brand2, brand3, commitRangeIndex, priceRangeIndex, brand5):
+        ds = Data_select()
+
+        dataDF = ds.selectGoods(keyId, brand1, brand2, brand3, '', brand5, '', '')
+
+        priceRange = [0, 50, 100, 500, 1000, 2500, 5000, 10000, 20000, 999999999999]
+        commitRange = [0, 50, 100, 500, 1000, 2500, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 999999999999]
+
+        if priceRangeIndex == 0:
+            priceMax = priceRange[priceRangeIndex]
+            priceMin = 0
+        else:
+            priceMax = priceRange[priceRangeIndex]
+            priceMin = priceRange[priceRangeIndex - 1]
+
+        if commitRangeIndex == 0:
+            commitMax = commitRange[commitRangeIndex]
+            commitMin = 0
+        else:
+            commitMax = commitRange[commitRangeIndex]
+            commitMin = commitRange[commitRangeIndex - 1]
+
+        dataDF = dataDF[(dataDF['price'] > priceMin) & (dataDF['price'] <= priceMax) & (dataDF['commit'] > commitMin) & (dataDF['commit'] <= commitMax)]
+
+        data = dataDF['pid'].tolist()
+
+        return data
 
 
 if __name__ == '__main__':
@@ -188,6 +215,6 @@ if __name__ == '__main__':
 
     # a = dg.get_goods_page_commit(1, "10074859458710", '', 1)
 
-    a = dg.get_home_data()
+    a = dg.getPidByBrand5CommitRangeIndexPriceRangeIndex(2, '', '', '', 8, 5, '机械革命机械革命无界m5')
 
     print(a)

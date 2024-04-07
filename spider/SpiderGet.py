@@ -23,7 +23,7 @@ class Spider_get:
         du = Data_update()
 
         print('-----'+self.goods_keyword)
-        a = ds.selectKeyword(self.goods_keyword, 2)
+        a = ds.selectKeyword(self.goods_keyword, 2, '')
 
         ds.close()
         # 判断a的结果是否存在
@@ -45,7 +45,7 @@ class Spider_get:
             di.insertKeyword(self.goods_keyword)
             di.commit()
             ds = Data_select()
-            a = ds.selectKeyword(self.goods_keyword, 2)
+            a = ds.selectKeyword(self.goods_keyword, 2, '')
             kid = a[0]
             SpiderGoodsBrand.getGoodsList(self.goods_keyword, self.goods_page)
             SpiderBSI.getBSI()

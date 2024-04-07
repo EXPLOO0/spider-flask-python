@@ -1,3 +1,5 @@
+import math
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -333,7 +335,7 @@ class Data_chart:
     def get_all_center_chart(self):
         ds = Data_select()
 
-        dataDF = ds.selectKeyword('none', 0)
+        dataDF = ds.selectKeyword('none', 0, '')
 
         # 循环 dataDF 的元组，将每个元组的第一个存入keyIdList，第二个存入keywordList，第四个存入goodsCountList，第四个存入priceList
         keyIdList = []
@@ -409,18 +411,13 @@ class Data_chart:
         return data
 
     # 图表，第三个抽屉的图表，符合价格、销量区间的商品
-    def get_chart_price_drawer3_chart(self, kid, brand1, brand2, brand3, commitRangeIndex, priceRangeIndex):
+    def get_chart_price_drawer3_chart(self, keyId, brand1, brand2, brand3, commitRangeIndex, priceRangeIndex):
         ds = Data_select()
 
-        dataDF = ds.selectGoods(kid, brand1, brand2, brand3, '', '', '', '')
+        dataDF = ds.selectGoods(keyId, brand1, brand2, brand3, '', '', '', '')
 
-        # 排除brand5列为default_value的
-        dataDF = dataDF[dataDF['brand5'] != 'default_value']
-        # 重新生成序号
-        dataDF['index'] = range(len(dataDF))
-
-        priceRange = [0, 50, 100, 500, 1000, 2500, 5000, 10000, 20000, 999999999999]
-        commitRange = [0, 50, 100, 500, 1000, 2500, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 999999999999]
+        priceRange = [0, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 999999999999]
+        commitRange = [0, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 999999999999]
 
         if priceRangeIndex == 0:
             priceMax = priceRange[priceRangeIndex]
@@ -435,8 +432,6 @@ class Data_chart:
         else:
             commitMax = commitRange[commitRangeIndex]
             commitMin = commitRange[commitRangeIndex - 1]
-
-        print(priceRangeIndex, commitRangeIndex, priceMin, priceMax, commitMin, commitMax)
 
         dataDF = dataDF[(dataDF['price'] > priceMin) & (dataDF['price'] <= priceMax) & (dataDF['commit'] > commitMin) & (dataDF['commit'] <= commitMax)]
 
@@ -458,9 +453,65 @@ class Data_chart:
 
         return data
 
+    # 商品雷达图
+    def get_goods_radar_chart(self, keyId, pid):
+
+        # 获取关键词平均价格
+        ds = Data_select()
+        keywordDF = ds.selectKeyword(keyword='none', value=0, keyId=keyId)
+
+        # 计算平均价格
+        average_price = keywordDF[0][3]
+        average_price = float(average_price)
+
+        # 根据平均价格确定档位价格范围
+        low_price_range = average_price / 2
+        high_price_range = average_price * 1.5  # 自定义高档位的范围，这里假设是平均价格的1.5倍
+
+        allGoodsDF = ds.selectGoods(keyId, '', '', '', '', '', '', '')
+
+        goodsDF = ds.selectGoods(keyId, '', '', '', '', '', '',pid)
+
+        goodsPrice = goodsDF['price'].tolist()[0]
+        goodsCommit = goodsDF['commit'].tolist()[0]
+        goodsSentimentScore = goodsDF['sentimentScore'].tolist()[0] * 100
+        try:
+            goodsCommitGood = ( goodsDF['count5'].tolist()[0] /  goodsDF['commit_count'].tolist()[0] ) * 100
+        except:
+            goodsCommitGood = 0
+
+        # 判断档位
+        if goodsPrice <= low_price_range:
+            level = 1
+            # allGoodsDF 中 price <= low_price_range 的商品的平均值
+            avgerage_price = allGoodsDF[allGoodsDF['price'] <= low_price_range]['price'].mean()
+        elif goodsPrice <= high_price_range:
+            level = 2
+            # allGoodsDF 中 price > low_price_range price <= low_price_range 的商品的平均值
+            avgerage_price = allGoodsDF[(allGoodsDF['price'] > low_price_range) & (allGoodsDF['price'] <= high_price_range)]['price'].mean()
+        else:
+            level = 3
+            # allGoodsDF 中 price > low_price_range 的商品的平均值
+            avgerage_price = allGoodsDF[allGoodsDF['price'] > high_price_range]['price'].mean()
+
+        deviation = ((math.log(goodsPrice) - math.log(avgerage_price)) / math.log(avgerage_price)) * 100
+
+        # deviation 为负数时，去掉负号
+        if deviation < 0:
+            deviation = deviation * -1
+
+        # 都保留两位小数
+        deviation = round(deviation, 2)
+        goodsSentimentScore = round(goodsSentimentScore, 2)
+        goodsCommitGood = round(goodsCommitGood, 2)
+
+        data = [[deviation, goodsCommit, goodsCommitGood, goodsSentimentScore, level],[goodsPrice,avgerage_price]]
+
+        return data
+
 
 if __name__ == '__main__':
     dc = Data_chart()
-    a = dc.get_chart_price_drawer3_chart(16, '', '', '', 1, 5)
+    a = dc.get_goods_radar_chart(16, '100082369233')
 
     print(a)

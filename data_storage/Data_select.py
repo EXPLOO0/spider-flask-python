@@ -8,40 +8,52 @@ class Data_select:
 
     def __init__(self):
         # 连接本地数据库spider_jd
-        self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='root', db='spider_jd', charset='utf8mb4')
+        self.conn = pymysql.connect(host='localhost', port=3306, user='root', password='root', db='spider_jd',
+                                    charset='utf8mb4')
         # 创建游标对象
         self.cursor = self.conn.cursor()
 
         self.engine = create_engine('mysql+pymysql://root:root@localhost:3306/spider_jd')
 
-    def selectKeyword(self, keyword, value):
+    def selectKeyword(self, keyword, value, keyId):
         print(keyword)
-        # 执行SQL查询语句
-        if keyword == 'none':
-            sql = "SELECT keyId, keyword, goodsCount, price, createDate FROM keyword_t where stus = 0 "
+        if keyId == '':
+            # 执行SQL查询语句
+            if keyword == 'none':
+                sql = "SELECT keyId, keyword, goodsCount, price, createDate FROM keyword_t where stus = 0 "
+                # 获取全部结果
+                self.cursor.execute(sql)
+                # 返回查询结果
+                data = self.cursor.fetchall()
+            else:
+                if value == 1:
+                    sql = "SELECT keyId, keyword, goodsCount, price, createDate FROM keyword_t WHERE keyword = '" + str(
+                        keyword) + "' and stus = 1 "
+                    # 获取结果
+                    self.cursor.execute(sql)
+                    # 返回查询结果
+                    data = self.cursor.fetchone()
+                elif value == 0:
+                    sql = "SELECT keyId, keyword, goodsCount, price, createDate FROM keyword_t WHERE keyword = '" + str(
+                        keyword) + "' and stus = 0 "
+                    # 获取结果
+                    self.cursor.execute(sql)
+                    # 返回查询结果
+                    data = self.cursor.fetchone()
+                else:
+                    sql = "SELECT keyId, keyword, goodsCount, price, createDate FROM keyword_t WHERE keyword = '" + str(
+                        keyword) + "' "
+                    # 获取结果
+                    self.cursor.execute(sql)
+                    # 返回查询结果
+                    data = self.cursor.fetchone()
+        else:
+            sql = "SELECT keyId, keyword, goodsCount, price, createDate FROM keyword_t where keyId = "+ str(keyId) +" "
             # 获取全部结果
             self.cursor.execute(sql)
             # 返回查询结果
             data = self.cursor.fetchall()
-        else:
-            if value==1 :
-                sql = "SELECT keyId, keyword, goodsCount, price, createDate FROM keyword_t WHERE keyword like '"+str(keyword)+"' and stus = 1 "
-                # 获取结果
-                self.cursor.execute(sql )
-                # 返回查询结果
-                data = self.cursor.fetchone()
-            elif value==0:
-                sql = "SELECT keyId, keyword, goodsCount, price, createDate FROM keyword_t WHERE keyword like '"+str(keyword)+"' and stus = 0 "
-                # 获取结果
-                self.cursor.execute(sql )
-                # 返回查询结果
-                data = self.cursor.fetchone()
-            else:
-                sql = "SELECT keyId, keyword, goodsCount, price, createDate FROM keyword_t WHERE keyword like '"+str(keyword)+"' "
-                # 获取结果
-                self.cursor.execute(sql )
-                # 返回查询结果
-                data = self.cursor.fetchone()
+
         return data
 
     def selectGoods(self, keyId, brand1, brand2, brand3, brand4, brand5, shop, pid):
@@ -99,7 +111,7 @@ class Data_select:
 
     def selectBrand2(self, keyId, brand1):
         if brand1:
-            sql1 = ' and brand1 = "' + str(brand1) +'" '
+            sql1 = ' and brand1 = "' + str(brand1) + '" '
         else:
             sql1 = ' and brand1 is null '
 
@@ -121,11 +133,11 @@ class Data_select:
 
     def selectBrand3(self, keyId, brand1, brand2):
         if brand1:
-            sql1 = ' and brand1 = "' + str(brand1) +'" '
+            sql1 = ' and brand1 = "' + str(brand1) + '" '
         else:
             sql1 = ' and brand1 is null '
         if brand2:
-            sql2 = ' and brand2 = "' + str(brand2) +'" '
+            sql2 = ' and brand2 = "' + str(brand2) + '" '
         else:
             sql2 = ' and brand2 is null '
 
@@ -145,7 +157,7 @@ class Data_select:
         return df['brand3'].tolist()
 
     def selectSpecImg(self, keyId, pid):
-        sql = 'select p_img from spec_img_t where kid =  ' + str(keyId) + ' and pid = "' + str(pid) +'" '
+        sql = 'select p_img from spec_img_t where kid =  ' + str(keyId) + ' and pid = "' + str(pid) + '" '
 
         # 获取全部结果
         df = pd.read_sql(sql, self.engine)
@@ -167,7 +179,8 @@ class Data_select:
         return pimgList
 
     def selectSpec(self, keyId, pid):
-        sql = 'select CONCAT(param3, "：", param4) as a from spec_t where kid =  ' + str(keyId) + ' and pid = "' + str(pid) +'" ORDER BY CASE param3 WHEN "包装清单" THEN 1 ELSE 2 END'
+        sql = 'select CONCAT(param3, "：", param4) as a from spec_t where kid =  ' + str(keyId) + ' and pid = "' + str(
+            pid) + '" ORDER BY CASE param3 WHEN "包装清单" THEN 1 ELSE 2 END'
 
         # 获取全部结果
         df = pd.read_sql(sql, self.engine)
@@ -176,14 +189,15 @@ class Data_select:
 
         return df['a'].tolist()
 
-    def selectCommit(self,keyId, pid, score, page):
-        sql = 'select productColor, productSize, score, content, sentimentScore, id from commit_t a right join goods_commit_t b on a.kid = b.kid and a.id = b.cid where a.kid =  ' + str(keyId) + ' and b.pid = "' + str(pid) +'" '
+    def selectCommit(self, keyId, pid, score, page):
+        sql = 'select productColor, productSize, score, content, sentimentScore, id from commit_t a right join goods_commit_t b on a.kid = b.kid and a.id = b.cid where a.kid =  ' + str(
+            keyId) + ' and b.pid = "' + str(pid) + '" '
 
         if score != '' and score:
             sql = sql + ' and score = ' + str(score)
 
         if page != '' and page:
-            sql = sql + ' limit ' + str((int(page)-1)*10) + ' , ' + str(10)
+            sql = sql + ' limit ' + str((int(page) - 1) * 10) + ' , ' + str(10)
         # 获取全部结果
         df = pd.read_sql(sql, self.engine)
         # 去重
@@ -265,6 +279,7 @@ class Data_select:
         self.cursor.close()
         # 关闭连接
         self.conn.close()
+
 
 if __name__ == '__main__':
     ds = Data_select()
