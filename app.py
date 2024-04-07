@@ -316,7 +316,6 @@ def getHomePageChartRight():
 
     return json.dumps(res, ensure_ascii=False, default=default_dump)
 
-
 @app.route('/getChartPagePriceDrawer3')
 def getChartPagePriceDrawer3():
     # 接收参数
@@ -384,6 +383,30 @@ def getPidByBrand5AndIndex():
 
     return json.dumps(res, ensure_ascii=False, default=default_dump)
 
+@app.route('/getGoodsRadarChart')
+def getGoodsRadarChart():
+    # 接收参数
+    keyId = request.args.get('keyId')
+    pid = request.args.get('pid')
+
+    dc = Data_chart()
+    data = dc.get_goods_radar_chart(keyId, pid)
+
+    # 返回json数据
+    res = {"code": '200', "data": data}
+
+    def default_dump(obj):
+        """Convert numpy classes to JSON serializable objects."""
+        if isinstance(obj, (np.integer, np.floating, np.bool_)):
+            return obj.item()
+        elif isinstance(obj, np.ndarray):
+            return obj.tolist()
+        else:
+            return obj
+
+    print(res)
+
+    return json.dumps(res, ensure_ascii=False, default=default_dump)
 
 if __name__ == '__main__':
     app.run()

@@ -48,7 +48,7 @@ class Data_chart:
         )['commit'].agg({
             'commit': np.sum
         })
-        print(gb1['commit'] > 50)
+        # print(gb1['commit'] > 50)
         x = gb1['commit'].argsort()[::-1]
         z = x.values[0:10]
         g1 = gb1.iloc[z, :]
@@ -370,8 +370,8 @@ class Data_chart:
         # 按price排序
         dataDF = dataDF.sort_values(by='price', ascending=False)
 
-        priceRange = [0, 50, 100, 500, 1000, 2500, 5000, 10000, 20000, 999999999999]
-        commitRange = [0, 50, 100, 500, 1000, 2500, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 999999999999]
+        priceRange = [0, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 999999999999]
+        commitRange = [0, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 999999999999]
 
         data = []
         for n in range(len(priceRange)):
@@ -483,14 +483,17 @@ class Data_chart:
         # 判断档位
         if goodsPrice <= low_price_range:
             level = 1
+            levelValue = '低'
             # allGoodsDF 中 price <= low_price_range 的商品的平均值
             avgerage_price = allGoodsDF[allGoodsDF['price'] <= low_price_range]['price'].mean()
         elif goodsPrice <= high_price_range:
             level = 2
+            levelValue = '中'
             # allGoodsDF 中 price > low_price_range price <= low_price_range 的商品的平均值
             avgerage_price = allGoodsDF[(allGoodsDF['price'] > low_price_range) & (allGoodsDF['price'] <= high_price_range)]['price'].mean()
         else:
             level = 3
+            levelValue = '高'
             # allGoodsDF 中 price > low_price_range 的商品的平均值
             avgerage_price = allGoodsDF[allGoodsDF['price'] > high_price_range]['price'].mean()
 
@@ -505,7 +508,25 @@ class Data_chart:
         goodsSentimentScore = round(goodsSentimentScore, 2)
         goodsCommitGood = round(goodsCommitGood, 2)
 
-        data = [[deviation, goodsCommit, goodsCommitGood, goodsSentimentScore, level],[goodsPrice,avgerage_price]]
+        commitRange = [0, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 999999999999]
+
+        # 判断goodsCommit属于哪一个区间，返回下标
+        goodsIndex = 0
+        if goodsCommit > 0:
+            for i in range(len(commitRange)):
+                if goodsCommit > commitRange[i] and goodsCommit <= commitRange[i + 1]:
+                    goodsIndex = i + 1
+                    break
+        else:
+            goodsIndex = 0
+
+        if goodsIndex > 13:
+            goodsIndex = 13
+
+        data = [
+            [deviation, goodsIndex, goodsCommitGood, goodsSentimentScore, level],
+            [goodsCommit, goodsPrice, avgerage_price, levelValue]
+        ]
 
         return data
 
