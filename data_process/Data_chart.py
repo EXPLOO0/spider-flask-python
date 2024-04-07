@@ -455,7 +455,6 @@ class Data_chart:
 
     # 商品雷达图
     def get_goods_radar_chart(self, keyId, pid):
-
         # 获取关键词平均价格
         ds = Data_select()
         keywordDF = ds.selectKeyword(keyword='none', value=0, keyId=keyId)
@@ -497,7 +496,7 @@ class Data_chart:
             # allGoodsDF 中 price > low_price_range 的商品的平均值
             avgerage_price = allGoodsDF[allGoodsDF['price'] > high_price_range]['price'].mean()
 
-        deviation = ((math.log(goodsPrice) - math.log(avgerage_price)) / math.log(avgerage_price)) * 100
+        deviation = ((goodsPrice - avgerage_price) / avgerage_price) * 100
 
         # deviation 为负数时，去掉负号
         if deviation < 0:
@@ -511,7 +510,7 @@ class Data_chart:
         commitRange = [0, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 999999999999]
 
         # 判断goodsCommit属于哪一个区间，返回下标
-        goodsIndex = 0
+        goodsIndex = -1
         if goodsCommit > 0:
             for i in range(len(commitRange)):
                 if goodsCommit > commitRange[i] and goodsCommit <= commitRange[i + 1]:
@@ -520,8 +519,9 @@ class Data_chart:
         else:
             goodsIndex = 0
 
-        if goodsIndex > 13:
-            goodsIndex = 13
+        # goodsIndex >13 或 goodsIndex = -1 时 设为13
+        if goodsIndex > 13 or goodsIndex == -1:
+            goodsIndex  = 13
 
         data = [
             [deviation, goodsIndex, goodsCommitGood, goodsSentimentScore, level],
