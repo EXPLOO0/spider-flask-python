@@ -335,7 +335,15 @@ class Data_chart:
     def get_all_center_chart(self):
         ds = Data_select()
 
-        dataDF = ds.selectKeyword('none', 0, '')
+        data = ds.selectKeyword('none', 0, '')
+
+        # 根据data[i][5]排序
+        dataDF = pd.DataFrame(data, columns=['keyId', 'keyword', 'goodsCount', 'price', 'createDate'])
+        dataDF = dataDF.sort_values(by='createDate', ascending=False)
+        dataDF = dataDF.reset_index(drop=True)
+
+        # dataDF转成列表
+        dataDF = dataDF.values.tolist()
 
         # 循环 dataDF 的元组，将每个元组的第一个存入keyIdList，第二个存入keywordList，第四个存入goodsCountList，第四个存入priceList
         keyIdList = []
@@ -496,16 +504,18 @@ class Data_chart:
             # allGoodsDF 中 price > low_price_range 的商品的平均值
             avgerage_price = allGoodsDF[allGoodsDF['price'] > high_price_range]['price'].mean()
 
-        deviation = ((goodsPrice - avgerage_price) / avgerage_price) * 100
-
-        # deviation 为负数时，去掉负号
-        if deviation < 0:
-            deviation = deviation * -1
+        priceUnit = avgerage_price / 10
+        priceDisparity = goodsPrice - avgerage_price
+        # 判断 priceDisparity 是 几倍的 priceUnit
+        priceNum = priceDisparity // priceUnit
+        if priceNum > 10:
+            priceNum = 10
+        priceNum = 10 - priceNum
 
         # 都保留两位小数
-        deviation = round(deviation, 2)
         goodsSentimentScore = round(goodsSentimentScore, 2)
         goodsCommitGood = round(goodsCommitGood, 2)
+        avgerage_price = round(avgerage_price, 2)
 
         commitRange = [0, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 999999999999]
 
@@ -524,7 +534,7 @@ class Data_chart:
             goodsIndex  = 13
 
         data = [
-            [deviation, goodsIndex, goodsCommitGood, goodsSentimentScore, level],
+            [priceNum, goodsIndex, goodsCommitGood, goodsSentimentScore, level],
             [goodsCommit, goodsPrice, avgerage_price, levelValue]
         ]
 
