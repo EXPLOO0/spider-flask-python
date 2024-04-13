@@ -8,6 +8,7 @@ import cv2
 from PIL import Image
 import math
 import numpy as np
+from DrissionPage.common import Actions
 
 def finPic(bg='spider/img/big.png', tp='spider/img/small.png', out='spider/img/out.png'):
     '''
@@ -140,6 +141,8 @@ def verifyRotate(page):
     time.sleep(3)
 
 def verifySlide(page):
+    ac = Actions(page)
+
     big_ele = page.ele('#cpc_img')
     small_ele = page.ele('#small_img')
     big_src = big_ele.link
@@ -160,10 +163,21 @@ def verifySlide(page):
     print('res')
     print(res)
     # res = res * 290 * 1.05 // 275
-    cl = page.ele('.bg-blue')
-    lo = cl.rect.viewport_midpoint
-    x = int(lo[0] * 1.05) + 25
-    y = int(lo[1] * 1.05) + 90
+
+    # cl = page.ele('.bg-blue')
+    # lo = cl.rect.viewport_midpoint
+    # x = int(lo[0] * 1.05) + 25
+    # y = int(lo[1] * 1.05) + 90
+
+    ac.move_to('.bg-blue')
+    ac.hold()
+    y = random.randint(-10, 10)
+    ac.move(res-5, y, duration=0.1)
+    y = random.randint(-5, 5)
+    ac.move(6, y, duration=random.randint(20, 31) / 100)
+    y = random.randint(-3, 3)
+    ac.move(-3, y, duration=0.3)
+    ac.release()
 
     # pyautogui.moveTo(x,y)
     # pyautogui.mouseDown(x,y)
@@ -172,17 +186,17 @@ def verifySlide(page):
     # pyautogui.moveTo(x + res + 1, y , duration=0.4)
     # pyautogui.mouseUp()
 
-    xx = x + res
-    pyautogui.moveTo(x, y, duration=0.1)
-    pyautogui.mouseDown()
-    y += random.randint(4, 15)
-    # pyautogui.moveTo(xx + 10, y, duration=0.5)
-    y += random.randint(-9, 0)
-    pyautogui.moveTo(xx - 2, y, duration=random.randint(20, 31) / 100)
-    y += random.randint(0, 8)
-    pyautogui.moveTo(xx, y, duration=0.3)
-    # pyautogui.sleep(0.5)
-    pyautogui.mouseUp()
+    # xx = x + res
+    # pyautogui.moveTo(x, y, duration=0.1)
+    # pyautogui.mouseDown()
+    # y += random.randint(4, 15)
+    # # pyautogui.moveTo(xx + 10, y, duration=0.5)
+    # y += random.randint(-9, 0)
+    # pyautogui.moveTo(xx - 2, y, duration=random.randint(20, 31) / 100)
+    # y += random.randint(0, 8)
+    # pyautogui.moveTo(xx, y, duration=0.3)
+    # # pyautogui.sleep(0.5)
+    # pyautogui.mouseUp()
 
     time.sleep(1)
 

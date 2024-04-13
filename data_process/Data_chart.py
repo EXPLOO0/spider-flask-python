@@ -508,6 +508,8 @@ class Data_chart:
         priceDisparity = goodsPrice - avgerage_price
         # 判断 priceDisparity 是 几倍的 priceUnit
         priceNum = priceDisparity // priceUnit
+        if priceNum < 0:
+            priceNum = priceNum * -1
         if priceNum > 10:
             priceNum = 10
         priceNum = 10 - priceNum
