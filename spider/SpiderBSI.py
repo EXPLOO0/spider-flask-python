@@ -46,6 +46,11 @@ def getBSI():
                 SpiderVerify.click_btn(page)
                 i -= 1
                 continue
+            elif page.ele('tag:input').attr('id') == 'pageSource':
+                print('------1.登录------')
+                SpiderVerify.login(page)
+                i -= 1
+                continue
             else:
                 print('------1.无验证------')
                 pass
@@ -64,6 +69,9 @@ def getBSI():
                     if page.ele('.container'):
                         print('------2.有验证------')
                         SpiderVerify.click_btn(page)
+                    elif page.ele('tag:input').attr('id') == 'pageSource':
+                        print('------2.登录------')
+                        SpiderVerify.login(page)
                     else:
                         print('------2.无验证------')
                         pass
@@ -106,6 +114,11 @@ def getBSI():
                         SpiderVerify.click_btn(page)
                         i -= 1
                         continue
+                    elif page.ele('tag:input').attr('id') == 'pageSource':
+                        print('------1.登录------')
+                        SpiderVerify.login(page)
+                        i -= 1
+                        continue
                     else:
                         print('------1.无验证------')
                         pass
@@ -124,6 +137,11 @@ def getBSI():
         if page.ele('tag:div').attr('class') == 'container':
             print('------1.有验证------')
             SpiderVerify.click_btn(page)
+            i -= 1
+            continue
+        elif page.ele('tag:input').attr('id') == 'pageSource':
+            print('------1.登录------')
+            SpiderVerify.login(page)
             i -= 1
             continue
         else:

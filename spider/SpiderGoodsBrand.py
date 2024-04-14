@@ -27,6 +27,11 @@ def getGoodsList(keyword, p):
     for i in range(1, url_page + 1):
         if page.ele('.gl-warp clearfix'):
             print('------------')
+        elif page.ele('tag:input').attr('id') == 'pageSource':
+            print('------1.登录------')
+            SpiderVerify.login(page)
+            i -= 1
+            continue
         else:
             print('-----进行验证-------')
             SpiderVerify.click_btn(page)
@@ -41,6 +46,11 @@ def getGoodsList(keyword, p):
         ulele = page.ele('.gl-warp clearfix')
         if page.ele('.gl-warp clearfix'):
             print('------------')
+        elif page.ele('tag:input').attr('id') == 'pageSource':
+            print('------1.登录------')
+            SpiderVerify.login(page)
+            i -= 1
+            continue
         else:
             print('-----进行验证-------')
             SpiderVerify.click_btn(page)
