@@ -5,22 +5,23 @@ import webbrowser
 import numpy as np
 
 from data_process.Data_chart import Data_chart
-from flask import Flask, request
+from flask import Flask, request, send_file, send_from_directory
 from flask_cors import CORS
 
 from data_process.Data_get import Data_get
 from data_storage.Data_select import Data_select
 from spider.SpiderGet import Spider_get
 
-app = Flask(__name__)
-CORS(app, resources={r"/*": {"origins": "http://localhost:5173"}})  # 允许所有域名进行跨域请求
+app = Flask(__name__, static_url_path='/',
+            static_folder='static', template_folder='templates')
+app.static_folder = 'static/dist'
+CORS(app)  # 允许所有域名进行跨域请求
 
 @app.route('/')
 def indenx():  # put application's code here
     # 打开网页 http://localhost:5173/
     # 跳转
-    webbrowser.open('http://localhost:5173/')
-    return 0
+    return send_from_directory(app.static_folder, 'index.html')
 
 @app.route('/insertKeyword', methods=['POST'])
 def insertKeyword():

@@ -281,7 +281,7 @@ class Data_chart:
 
         df = ds.selectGoods('', '', '', '', '', '', '', '')
 
-        # 分别获取 brand1列 和 brand4列
+        # 分别获取 brand1列 分类 和 brand4列 品牌
         brand1 = df['brand1']
         brand4 = df['brand4']
 
@@ -337,7 +337,7 @@ class Data_chart:
 
         data = ds.selectKeyword('none', 0, '')
 
-        # 根据data[i][5]排序
+        # 根据data[i][5] 修改日期 排序
         dataDF = pd.DataFrame(data, columns=['keyId', 'keyword', 'goodsCount', 'price', 'createDate'])
         dataDF = dataDF.sort_values(by='createDate', ascending=False)
         dataDF = dataDF.reset_index(drop=True)

@@ -33,7 +33,7 @@ class Spider_get:
             print('----'+str(kid))
             if du.updataKeywordStus(kid, 1):
                 du.commit()
-                # SpiderGoodsBrand.getGoodsList(self.goods_keyword, self.goods_page)
+                SpiderGoodsBrand.getGoodsList(self.goods_keyword, self.goods_page)
                 SpiderBSI.getBSI()
                 SpiderCommit.getCommit(self.commit_page)
                 SpiderQA.getQa(self.qa_page)
@@ -47,7 +47,7 @@ class Spider_get:
             ds = Data_select()
             a = ds.selectKeyword(self.goods_keyword, 2, '')
             kid = a[0]
-            # SpiderGoodsBrand.getGoodsList(self.goods_keyword, self.goods_page)
+            SpiderGoodsBrand.getGoodsList(self.goods_keyword, self.goods_page)
             SpiderBSI.getBSI()
             SpiderCommit.getCommit(self.commit_page)
             SpiderQA.getQa(self.qa_page)

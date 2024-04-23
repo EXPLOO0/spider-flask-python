@@ -2,7 +2,6 @@ import base64
 import random
 import time
 import cv2
-from DrissionPage._pages.chromium_page import ChromiumPage
 from DrissionPage.common import Actions
 import configparser
 
@@ -145,9 +144,11 @@ def verifyLoginSlide(page):
     ac = Actions(page)
     page.wait.ele_displayed('#JDJRV-suspend-warp JDJRV-bind-suspend-wrap ')
     while True:
-
-        big_ele = page.ele('.JDJRV-bigimg').ele('tag:img')
-        small_ele = page.ele('.JDJRV-smallimg').ele('tag:img')
+        try:
+            big_ele = page.ele('.JDJRV-bigimg').ele('tag:img')
+            small_ele = page.ele('.JDJRV-smallimg').ele('tag:img')
+        except:
+            return 1
 
         if big_ele and small_ele:
             big_src = big_ele.link
@@ -186,7 +187,7 @@ def verifyLoginSlide(page):
 
 def login(page):
     config = configparser.ConfigParser()
-    config.read('../configData.ini')  # 读取配置文件
+    config.read('configData.ini')  # 读取配置文件
 
     loginname = page.ele('#loginname')
     nloginpwd = page.ele('#nloginpwd')
@@ -203,5 +204,3 @@ def login(page):
         verifyLoginSlide(page)
     else:
         return 1
-
-

@@ -1,9 +1,20 @@
 import pymysql as pymysql
+import configparser
 
 
 class Data_delete:
+    config = configparser.ConfigParser()
+    config.read('configData.ini')  # 读取配置文件
+
+    host = config.get('MySQL', 'host')
+    port = int(config.get('MySQL', 'port'))
+    user = config.get('MySQL', 'user')
+    password = config.get('MySQL', 'password')
+    db = config.get('MySQL', 'db')
+    charset = config.get('MySQL', 'charset')
+
     # 连接本地数据库spider_jd
-    conn = pymysql.connect(host='localhost', port=3306, user='root', password='root', db='spider_jd', charset='utf8mb4')
+    conn = pymysql.connect(host=host, port=port, user=user, password=password, db=db, charset=charset)
     # 创建游标对象
     cursor = conn.cursor()
 
