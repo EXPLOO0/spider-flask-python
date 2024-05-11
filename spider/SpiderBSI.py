@@ -25,7 +25,6 @@ def getBSI():
     with open("static/data/csv/data-spec.csv", mode='w', newline='', encoding='utf-8') as f:
         csv.writer(f).writerow(['pid', 'param1', 'param2', 'param3', 'param4'])
 
-
     df = pd.read_csv('static/data/csv/data-goods.csv')
     # 只获取 pid 和 p_url
     df = df[['pid', 'p_url']]
@@ -168,7 +167,6 @@ def getBSI():
 
             with open("static/data/csv/data-introduce.csv", mode='a', newline='', encoding='utf-8') as f:
                 csv.writer(f).writerow([df.at[i, 'pid'], '2', param[0], param[1]])
-
 
         # 规格、包装
         print('规格、包装---------------')

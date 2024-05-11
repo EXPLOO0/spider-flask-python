@@ -28,7 +28,7 @@ def generateWordCloud(kid, pid):
     # 再做分词切割
     finalComments = " ".join(jieba.cut(finalComments))
     # 使用Image将图片读取到程序中，并且使用numpy处理成ndarray格式
-    image = np.array(Image.open("static/data/wordcloud/img/云2.jpeg"))
+    image = np.array(Image.open("static/dist/wordcloud/img/云2.jpeg"))
 
     # 定义停用词列表
     stopwords = ['的', '了', '也', '是', '在', '和', '有', '就', '中', '这', '不', '我', '你', '他', '她', '我们',
@@ -40,7 +40,7 @@ def generateWordCloud(kid, pid):
     # mask:词云的轮廓，白色不会赋值
     wordCloud = WordCloud(
         # font_path="C:/Windows/Fonts/simsun.ttc",
-        font_path="../static/data/wordcloud/simsun.ttc",
+        font_path="../static/dist/wordcloud/simsun.ttc",
         width=800,
         height=400,
         background_color="white",
@@ -48,10 +48,10 @@ def generateWordCloud(kid, pid):
         stopwords=stopwords
     ).generate(finalComments)
     # 生成词云文件
-    wordCloud.to_file("static/data/wordcloud/wc_tmp.png")
+    wordCloud.to_file("static/dist/wordcloud/wc_tmp.png")
 
     # 返回前端能直接用的图片在服务器的地址
-    return "http://127.0.0.1:5000/static/data/wordcloud/wc_tmp.png"
+    return "http://127.0.0.1:5000/wordcloud/wc_tmp.png"
 
 def analyze_sentiment_detailed(comment):
     s = SnowNLP(comment)

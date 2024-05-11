@@ -1,17 +1,14 @@
 import json
 import threading
-import webbrowser
-
 import numpy as np
-
 from data_process.Data_chart import Data_chart
-from flask import Flask, request, send_file, send_from_directory
+from flask import Flask, request, send_from_directory
 from flask_cors import CORS
-
 from data_process.Data_get import Data_get
 from data_storage.Data_select import Data_select
 from spider.SpiderGet import Spider_get
 
+# 设置静态文件默认地址
 app = Flask(__name__, static_url_path='/',
             static_folder='static', template_folder='templates')
 app.static_folder = 'static/dist'
