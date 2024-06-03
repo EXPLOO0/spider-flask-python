@@ -10,13 +10,11 @@ class Spider_get:
     goods_keyword = '笔记本电脑'
     goods_page = 30
     commit_page = 15
-    qa_page = 5
 
-    def __init__(self, goods_keyword, goods_page, commit_page, qa_page):
+    def __init__(self, goods_keyword, goods_page, commit_page):
         self.goods_keyword = goods_keyword
         self.goods_page = goods_page
         self.commit_page = commit_page
-        self.qa_page = qa_page
 
     def getAll(self):
         ds = Data_select()
@@ -36,7 +34,6 @@ class Spider_get:
                 SpiderGoodsBrand.getGoodsList(self.goods_keyword, self.goods_page)
                 SpiderBSI.getBSI()
                 SpiderCommit.getCommit(self.commit_page)
-                SpiderQA.getQa(self.qa_page)
                 dd = Data_delete()
                 dd.deleteAll(kid)
         else:
@@ -50,7 +47,6 @@ class Spider_get:
             SpiderGoodsBrand.getGoodsList(self.goods_keyword, self.goods_page)
             SpiderBSI.getBSI()
             SpiderCommit.getCommit(self.commit_page)
-            SpiderQA.getQa(self.qa_page)
 
         dc = Data_clean()
         dc.put_all(kid, self.goods_page, self.commit_page)

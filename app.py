@@ -25,17 +25,15 @@ def insertKeyword():
     goods_keyword = request.get_json().get('goods_keyword')
     goods_page = request.get_json().get('goods_page')
     commit_page = request.get_json().get('commit_page')
-    qa_page = request.get_json().get('qa_page')
-    print(goods_keyword, goods_page, commit_page, qa_page)
+    print(goods_keyword, goods_page, commit_page)
 
     goods_keyword = str(goods_keyword)
     goods_page = int(goods_page)
     commit_page = int(commit_page)
-    qa_page = int(qa_page)
 
-    print(goods_keyword, goods_page, commit_page, qa_page)
+    print(goods_keyword, goods_page, commit_page)
 
-    sg = Spider_get(goods_keyword, goods_page, commit_page, qa_page)
+    sg = Spider_get(goods_keyword, goods_page, commit_page)
 
     def get_data_thread():
         sg.getAll()
